@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "valorantsound.helloWorld",
-        "title": "Hello World"
+        "command": "valorantsound.showView",
+        "title": "valorantsound:showView"
       }
     ]
   },
