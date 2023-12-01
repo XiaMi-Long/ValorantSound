@@ -20,21 +20,10 @@
 		{
 			"type": "npm",
 			"script": "watch-tests",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
-			"presentation": {
-				"reveal": "never",
-				"group": "watchers"
-			},
-			"group": "build"
-		},
-		{
-			"label": "tasks: watch-tests",
-			"dependsOn": [
-				"npm: watch",
-				"npm: watch-tests"
-			],
-			"problemMatcher": []
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: watch-tests",
+			"detail": "tsc -p . -w --outDir out"
 		}
 	]
 }
