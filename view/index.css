@@ -1,38 +1,9 @@
-.radio-group {
-    margin: 20px 0;
+div {
+    padding: 20px;
 
-    padding: 0 20px;
+    background-color: blueviolet;
 
-}
+    margin: 20px;
 
-
-.radio-group label {
-    display: block;
-    margin: 10px 0;
-    position: relative;
-    padding-left: 35px;
-    color: #c4c2c2;
-}
-
-.radio-group input[type="radio"] {
-    display: none;
-}
-
-.radio-group label:before {
-    content: "";
     display: inline-block;
-    position: absolute;
-    left: 0;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid #ccc;
-}
-
-.radio-group input[type="radio"]:checked + label:before {
-    background-color: #ccc;
-}
-
-.radio-group audio {
-    display: none;
 }
