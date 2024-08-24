@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
-import { commonKeyBoard } from './server/common_key_bord'
+import { debounce } from './utils/debounce'
+import { commonKeyBoard } from './server/common_key_board'
 
 export function activate(context: vscode.ExtensionContext) {
     const provider = new ValorantSoundViewProvider(context.extensionUri, context.subscriptions)
@@ -40,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     }
     // })
 
-    vscode.workspace.onDidChangeTextDocument(commonKeyBoard)
+    vscode.workspace.onDidChangeTextDocument(debounce(commonKeyBoard, 2000))
 
     context.subscriptions.push(vscode.window.registerWebviewViewProvider(ValorantSoundViewProvider.viewType, provider))
 }
