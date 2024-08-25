@@ -42,8 +42,6 @@ export function activate(context: vscode.ExtensionContext) {
     //     }
     // })
 
-    vscode.workspace.onDidChangeTextDocument(debounce(commonKeyBoard, 2000))
-
     context.subscriptions.push(vscode.window.registerWebviewViewProvider(ValorantSoundViewProvider.viewType, provider))
 }
 
@@ -89,6 +87,8 @@ class ValorantSoundViewProvider implements vscode.WebviewViewProvider {
             undefined,
             this._subscriptions
         )
+
+        vscode.workspace.onDidChangeTextDocument(debounce(commonKeyBoard, 900, this._view.webview))
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview)
     }
@@ -140,7 +140,7 @@ class ValorantSoundViewProvider implements vscode.WebviewViewProvider {
         list.forEach((item) => {
             str += `<audio id="${name + '-' + item}" src="${this._view?.webview.asWebviewUri(
                 vscode.Uri.joinPath(this._extensionUri, 'audio', name, `${item}`)
-            )}" style="opacity:0;"></audio>`
+            )}" style="opacity:0;" muted></audio>`
         })
         return str
     }

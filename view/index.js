@@ -1,27 +1,46 @@
-
-
-
+// 获取 vscode 对象，以便与 VSCode 扩展进行交互
 const vscode = acquireVsCodeApi();
-const button = document.querySelector(".button")
-const radioBox = document.querySelector('.radio-box')
-const loadingTipBox = document.querySelector('.radio-loading-tip-box')
-let audioElements = null
+// 获取页面上的按钮元素
+const button = document.querySelector(".button");
+// 获取页面上的单选框容器元素
+const radioBox = document.querySelector('.radio-box');
+// 获取页面上的加载提示容器元素
+const loadingTipBox = document.querySelector('.radio-loading-tip-box');
+// 是否已经初始化完成
+let isInitSuccess = false;
+// 初始化 audioElements 变量，用于存储所有音频元素
+let audioElements = null;
+// 目前正在播放第几个音频
+let playingIndex = 0;
 
+// 调用 initSuccess 函数，可能是用于初始化某些操作或状态
+initSuccess(vscode);
 
-initSuccess(vscode)
-
+// 为 window 对象添加一个 message 事件监听器
 window.addEventListener("message", (event) => {
+    // 获取事件数据
     const message = event.data;
+    // 根据命令类型进行switch判断
     switch (message.command) {
+        // 如果命令是 init-success，表示初始化成功
         case 'init-success':
-            renderAudio(message.data)
-            getAllAudioElement()
-            listenerAudioUrlLoad()
+            // 调用 renderAudio 函数，可能是渲染音频相关内容
+            renderAudio(message.data);
+            // 调用 getAllAudioElement 函数，可能是获取所有音频元素
+            getAllAudioElement();
+            // 调用 listenerAudioUrlLoad 函数，可能是为音频元素的加载事件添加监听器，并显示加载提示信息
+            listenerAudioUrlLoad();
+            // 测试代码：取消音频 a1 的静音状态并播放
             // a1.muted = false;
             // a1.play();
             break;
+        case 'next-play':
+            playNextAudio()
+            playingIndex++
+            break;
+
     }
-})
+});
 
 window.onload = function () {
 
@@ -83,15 +102,13 @@ function renderAudio (str) {
 
 /**
  * 获取页面上所有的 audio 元素
- *
  * 这个函数使用 document.getElementsByTagName 方法来获取页面上所有的 <audio> 标签，并将结果赋值给参数 audioElements。
- * 如果页面上没有 audio 元素，这个函数不会做任何事情。
- *
  * @param {HTMLCollection | null} audioElements - 页面上所有的 audio 元素集合，默认为 null
  * @return {void} 这个函数没有返回值，它的作用是修改 audioElements 参数引用的内容
  */
 function getAllAudioElement () {
     audioElements = document.getElementsByTagName("audio")
+    playingIndex = 0
 }
 
 
@@ -109,11 +126,7 @@ function listenerAudioUrlLoad () {
             loadCount++
             if (loadCount === audioElements.length) {
                 clearLoadingTip()
-                createLoadingTip('加载完成！')
-                setTimeout(() => {
-                    clearLoadingTip()
-
-                }, 2000);
+                createLoadingTip('加载完成！', true)
                 buttonClick()
             }
 
@@ -129,37 +142,57 @@ function listenerAudioUrlLoad () {
  */
 function buttonClick () {
     button.addEventListener("click", () => {
-        // 播放第一个音频初始化
-        const audio = audioElements[0]
-        audio.muted = false;
-        audio.play();
-        createLoadingTip('测试成功！')
-        setTimeout(() => {
-            clearLoadingTip()
-        }, 2000);
+        // 播放所有音频
+        Array.from(audioElements).forEach((ele, index) => {
+            const audio = ele
+            if (index === audioElements.length - 1) {
+                audio.muted = false
+            } else {
+                audio.muted = true;
+            }
 
+            audio.play();
+        })
+        isInitSuccess = true
+        createLoadingTip('测试成功！', true)
     })
+}
+
+function playNextAudio () {
+    if (!isInitSuccess) {
+        createLoadingTip('请先初始化！', true)
+    }
+    if (playingIndex === audioElements.length) {
+        playingIndex = 0
+    }
+
+    const audio = audioElements[playingIndex]
+    audio.muted = false
+    audio.play();
 }
 
 /**
  * 创建一个加载提示，并将其添加到页面上的 loadingTipBox 容器中
- *
  * @param {string} text - 要在加载提示中显示的文本
  * @returns {void} 这个函数没有返回值，它的作用是创建并显示加载提示
  */
-function createLoadingTip (text) {
+function createLoadingTip (text, autoClose = false, closeTime = 2000,) {
     const div = document.createElement('div')
     div.className = 'loading-tip'
     div.innerText = text
     loadingTipBox.appendChild(div)
+
+    if (autoClose) {
+        setTimeout(() => {
+            clearLoadingTip()
+        }, closeTime);
+    }
 }
 
 
 /**
  * 清空加载提示信息
- *
  * 这个函数的作用是清空 loadingTipBox 容器的内容，从而移除页面上显示的加载提示信息。
- *
  * @returns {void} 这个函数没有返回值，它的作用是修改 loadingTipBox 的内容
  */
 function clearLoadingTip () {
