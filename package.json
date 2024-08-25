@@ -26,13 +26,31 @@
         "command": "valorantsound.showView",
         "title": "valorantsound:showView"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "valorantsound",
+      "properties": {
+        "valorantsound.select": {
+          "type": "string",
+          "default": "盖亚",
+          "enum": [
+            "盖亚",
+            "混沌"
+          ],
+          "enumDescriptions": [
+            "选择盖亚声音",
+            "选择混沌声音"
+          ],
+          "markdownDescription": "选择声音主题"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
     "compile": "webpack",
     "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
+    "p  e": "webpack --mode production --devtool hidden-source-map",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
@@ -40,6 +58,7 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.7",
     "@types/mocha": "^10.0.3",
     "@types/node": "18.x",
     "@types/vscode": "^1.84.0",
@@ -53,5 +72,8 @@
     "typescript": "^5.2.2",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

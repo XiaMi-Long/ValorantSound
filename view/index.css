@@ -1,9 +1,55 @@
-div {
+body {
+    background-color: #272822;
+
+    width: 100vw;
+    height: 100vh;
+
     padding: 20px;
+}
 
-    background-color: blueviolet;
+.box {}
 
-    margin: 20px;
+.button {
+    padding: 10px;
+    background-color: #0181fb;
+    color: white;
+    text-align: center;
 
-    display: inline-block;
+    cursor: pointer;
+
+}
+
+.tip {
+    font-size: 14px;
+    color: white;
+    margin-top: 15px;
+
+}
+
+select {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+}
+
+select:focus {
+    outline: none;
+    border-color: #0056b3;
+}
+
+.radio-loading-tip-box {
+    margin-top: 10px;
+}
+
+.loading-tip {
+    margin: 6px 0px;
 }
