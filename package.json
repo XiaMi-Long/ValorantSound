@@ -1,5 +1,5 @@
 {
-  "name": "valorant Sound",
+  "name": "valorant-sound",
   "displayName": "valorant-sound",
   "description": "根据valorant击杀音效来生成声音",
   "icon": "./icon/1.png",
@@ -20,7 +20,7 @@
     "valorant"
   ],
   "activationEvents": [],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "views": {
       "scm": [
