@@ -6,42 +6,16 @@ import { commonKeyBoard } from './server/common_key_board'
 export function activate(context: vscode.ExtensionContext) {
     const provider = new ValorantSoundViewProvider(context.extensionUri, context.subscriptions)
 
-    // // 监听编辑器的文本变化事件
-    // let disposable = vscode.workspace.onDidChangeTextDocument((event) => {
-    //     // 获取编辑器
-    //     const editor = vscode.window.activeTextEditor
-    //     if (editor && event.document === editor.document) {
-    //         // 获取最近一次编辑的变化
-    //         const changes = event.contentChanges
-    //         console.log(changes)
-    //         console.log(changes[0].text.length)
-    //         console.log('------------------------')
-
-    //         if (changes.length > 0 && changes.length <= 2) {
-    //             // 如果是回车
-    //             if (changes[0].text.includes('\r\n') || changes[1].text.includes('\n')) {
-    //                 provider._view?.webview.postMessage({ command: 'playSound' })
-    //                 return
-    //             }
-    //             // 如果是Tab键
-    //             if (changes.length === 1) {
-    //                 // 变化小等于1的tab键，不计入判断（防止和普通空格误解）
-    //                 if (changes[0].text.length > 1) {
-    //                     // 制表符分空格制表符和\t制表符
-    //                     if (changes[0].text === '\t') {
-    //                         provider._view?.webview.postMessage({ command: 'playSound' })
-    //                         return
-    //                     }
-    //                     if (changes[0].text.trim().length === 0) {
-    //                         provider._view?.webview.postMessage({ command: 'playSound' })
-    //                         return
-    //                     }
-    //                 }
-    //             }
-    //         }
+    // const configurationChangeDisposable = vscode.workspace.onDidChangeConfiguration((event) => {
+    //     if (event.affectsConfiguration('valorantsound.select')) {
+    //         provider._view?.webview.postMessage({
+    //             command: 'config-update',
+    //             data: vscode.workspace.getConfiguration('valorantsound').select,
+    //         })
     //     }
     // })
 
+    // context.subscriptions.push(configurationChangeDisposable)
     context.subscriptions.push(vscode.window.registerWebviewViewProvider(ValorantSoundViewProvider.viewType, provider))
 }
 
@@ -82,13 +56,17 @@ class ValorantSoundViewProvider implements vscode.WebviewViewProvider {
                     case 'init-success':
                         this._view?.webview.postMessage({ command: 'init-success', data: this.getDefaultAudioUrls() })
                         return
+                    case 'select-change':
+                        const selectValue = message.text
+                        this._view?.webview.postMessage({ command: 'change-music', data: this._getHtmlForAudio(selectValue) })
+                        return
                 }
             },
             undefined,
             this._subscriptions
         )
 
-        vscode.workspace.onDidChangeTextDocument(debounce(commonKeyBoard, 900, this._view.webview))
+        vscode.workspace.onDidChangeTextDocument(debounce(commonKeyBoard, 200, this._view.webview))
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview)
     }
@@ -104,7 +82,7 @@ class ValorantSoundViewProvider implements vscode.WebviewViewProvider {
      */
     private _getHtmlForSelect(webview: vscode.Webview): string {
         const defaultName = vscode.workspace.getConfiguration('valorantsound')
-        let htmlStr = ' <select>'
+        let htmlStr = ' <select id="select">'
         for (const [key, value] of Object.entries(musicMenu)) {
             if (key === defaultName.select) {
                 htmlStr += `
@@ -145,8 +123,18 @@ class ValorantSoundViewProvider implements vscode.WebviewViewProvider {
         return str
     }
 
+    public _getDuvetForAudio(): string {
+        let str = ''
+        str += `<audio id="duvet" src="${this._view?.webview.asWebviewUri(
+            vscode.Uri.joinPath(this._extensionUri, 'audio', 'duvet', `duvet.mp3`)
+        )}" style="opacity:0;" muted></audio>`
+
+        return str
+    }
+
     private _getHtmlForWebview(webview: vscode.Webview) {
         // const audioHtml = this._getHtmlForAudio(webview)
+        const duvetHtml = this._getDuvetForAudio()
         const selectHtml = this._getHtmlForSelect(webview)
 
         const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'view', 'index.js'))
@@ -183,6 +171,10 @@ class ValorantSoundViewProvider implements vscode.WebviewViewProvider {
                 <div class="radio-loading-tip-box">
                 </div>
 
+                <div class="radio-box-duvet">
+                    ${duvetHtml}
+                </div>
+
 
             </div>
 
@@ -196,8 +188,3 @@ class ValorantSoundViewProvider implements vscode.WebviewViewProvider {
         </html>`
     }
 }
-
-// <div class="radio-group">
-// <button id="init">初始化</button>
-// ${audioHtml}
-// </div>

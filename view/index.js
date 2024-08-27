@@ -12,6 +12,12 @@ let isInitSuccess = false;
 let audioElements = null;
 // 目前正在播放第几个音频
 let playingIndex = 0;
+// button按钮的点击事件方法
+let buttonClickEvent = null
+// duvet是否已经加载并且初始化
+let isDuvetInitSuccess = false
+
+
 
 // 调用 initSuccess 函数，可能是用于初始化某些操作或状态
 initSuccess(vscode);
@@ -24,57 +30,59 @@ window.addEventListener("message", (event) => {
     switch (message.command) {
         // 如果命令是 init-success，表示初始化成功
         case 'init-success':
-            // 调用 renderAudio 函数，可能是渲染音频相关内容
+            // 渲染音频相关内容
             renderAudio(message.data);
-            // 调用 getAllAudioElement 函数，可能是获取所有音频元素
+            // 获取所有音频元素
             getAllAudioElement();
-            // 调用 listenerAudioUrlLoad 函数，可能是为音频元素的加载事件添加监听器，并显示加载提示信息
+            // 为音频元素的加载事件添加监听器，并显示加载提示信息
             listenerAudioUrlLoad();
-            // 测试代码：取消音频 a1 的静音状态并播放
-            // a1.muted = false;
-            // a1.play();
+            // 额外初始化duvet
+
             break;
+        case 'change-music':
+            button.removeEventListener('click', buttonClickEvent)
+            buttonClickEvent = null
+
+            // 渲染音频相关内容
+            renderAudio(message.data);
+            // 获取所有音频元素
+            getAllAudioElement();
+            // 为音频元素的加载事件添加监听器，并显示加载提示信息
+            listenerAudioUrlLoad();
+            isInitSuccess = false
+            break;
+        // case 'config-update':
+        //     vscode.postMessage({
+        //         command: 'select-change',
+        //         text: message.data
+        //     })
+        //     break;
         case 'next-play':
             playNextAudio()
-            playingIndex++
             break;
+        case 'play-duvet':
+            const duvet = document.getElementById('duvet')
+            if (duvet) {
+                duvet.muted = false
+                duvet.play()
+            }
+
+            break;
+
 
     }
 });
 
 window.onload = function () {
-
-
-
-
-
-
-
-    // init.addEventListener("click", () => {
-    //     console.log(1);
-
-    //     a1.play()
-    //     a1.pause()
-
-    // })
-
-    // box1.addEventListener("click", () => {
-    //     a1.muted = false;
-    //     a1.play();
-
-    // })
-    // box2.addEventListener("click", () => {
-    //     a2.muted = false;
-    //     a2.play();
-    // })
-    // box3.addEventListener("click", () => {
-    //     a3.muted = false;
-    //     a3.play();
-    // })
-
-
-
-
+    const select = document.getElementById("select")
+    if (select) {
+        select.addEventListener('change', () => {
+            vscode.postMessage({
+                command: 'select-change',
+                text: select.value
+            })
+        })
+    }
 }
 
 
@@ -107,7 +115,7 @@ function renderAudio (str) {
  * @return {void} 这个函数没有返回值，它的作用是修改 audioElements 参数引用的内容
  */
 function getAllAudioElement () {
-    audioElements = document.getElementsByTagName("audio")
+    audioElements = document.querySelectorAll(".radio-box audio")
     playingIndex = 0
 }
 
@@ -136,12 +144,18 @@ function listenerAudioUrlLoad () {
 }
 
 
+
 /**
- * 初始化按钮点击事件监听器
- * 这个函数为页面上的 `button` 元素添加点击事件监听器，当用户点击按钮时，在控制台输出数字 `6`
+ * 为一个按钮绑定点击事件的函数
+ * @function buttonClick
+ * @description 这个函数会在页面加载完成后执行，它获取一个按钮元素，并为其添加一个点击事件监听器。当按钮被点击时，会触发`buttonClickEvent`函数。
  */
 function buttonClick () {
-    button.addEventListener("click", () => {
+    buttonClickEvent = () => {
+        if (isInitSuccess) {
+            createLoadingTip('测试成功！', true)
+            return
+        }
         // 播放所有音频
         Array.from(audioElements).forEach((ele, index) => {
             const audio = ele
@@ -155,21 +169,87 @@ function buttonClick () {
         })
         isInitSuccess = true
         createLoadingTip('测试成功！', true)
-    })
+
+        // 延迟处理，防止阻塞
+        setTimeout(() => {
+            if (!isDuvetInitSuccess) {
+                initDuvet()
+            }
+        }, 2000);
+
+    }
+    button.addEventListener("click", buttonClickEvent)
 }
 
+
+/**
+ * 播放下一个音频文件
+ * 在播放下一首音频之前，确保当前音频停止播放并重置播放时间
+ * 如果播放列表结束，则重新开始播放列表的第一首音频
+ * @function playNextAudio
+ */
 function playNextAudio () {
+    // 检查是否初始化成功，否则显示加载提示
     if (!isInitSuccess) {
         createLoadingTip('请先初始化！', true)
     }
+
+    // 检查当前播放索引值是否达到播放列表结尾，是的话重置索引到列表的开始位置
     if (playingIndex === audioElements.length) {
         playingIndex = 0
     }
 
-    const audio = audioElements[playingIndex]
+    // 防止多个声音同时播放
+    if (playingIndex > 0) {
+        // 暂停当前音频
+        audioElements[playingIndex - 1].pause()
+        // 将当前音频的播放时间重置为 0
+        audioElements[playingIndex - 1].currentTime = 0
+    }
+
+    // 播放索引值指定的音频文件
+    playAudio(playingIndex)
+
+    // 设置播放索引值到下一个位置
+    setPlayIndex(playingIndex + 1)
+}
+
+
+/**
+ * 播放列表中指定索引位置的音频
+ *
+ * @param {number} index - 音频在音频元素数组中的索引位置
+ */
+function playAudio (index) {
+    const audio = audioElements[index]
     audio.muted = false
     audio.play();
 }
+
+/**
+ * 设置播放索引值
+ *
+ * @param {number} num - 要设置的播放索引值
+ */
+function setPlayIndex (num) {
+    playingIndex = num
+}
+
+
+/**
+ * 初始化音频元素
+ * 此函数用于获取页面中的音频元素（id 为 duvet），并进行一些初始化操作。
+ */
+function initDuvet () {
+    const duvet = document.getElementById('duvet')
+    if (duvet) {
+        duvet.muted = true
+        duvet.play()
+        duvet.pause()
+        duvet.currentTime = 0
+    }
+}
+
 
 /**
  * 创建一个加载提示，并将其添加到页面上的 loadingTipBox 容器中

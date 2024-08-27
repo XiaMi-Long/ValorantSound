@@ -1,16 +1,26 @@
 {
-  "name": "valorantsound",
-  "displayName": "ValorantSound",
+  "name": "valorant Sound",
+  "displayName": "valorant-sound",
   "description": "根据valorant击杀音效来生成声音",
-  "version": "0.0.1",
+  "icon": "./icon/1.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/XiaMi-Long/ValorantSound"
+  },
+  "publisher": "wwy",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.84.0"
   },
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "sound",
+    "valorant"
+  ],
   "activationEvents": [],
-  "main": "./dist/extension.js",
+  "main": "./out/extension.js",
   "contributes": {
     "views": {
       "scm": [
@@ -21,27 +31,23 @@
         }
       ]
     },
-    "commands": [
-      {
-        "command": "valorantsound.showView",
-        "title": "valorantsound:showView"
-      }
-    ],
     "configuration": {
-      "title": "valorantsound",
+      "title": "valorant Sound",
       "properties": {
         "valorantsound.select": {
           "type": "string",
           "default": "盖亚",
           "enum": [
             "盖亚",
-            "混沌"
+            "未知",
+            "电吉他"
           ],
           "enumDescriptions": [
             "选择盖亚声音",
-            "选择混沌声音"
+            "选择电吉他声音",
+            "选择未知声音"
           ],
-          "markdownDescription": "选择声音主题"
+          "markdownDescription": "选择默认启动选中的声音主题"
         }
       }
     }
@@ -50,6 +56,7 @@
     "vscode:prepublish": "pnpm run package",
     "compile": "webpack",
     "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
     "p  e": "webpack --mode production --devtool hidden-source-map",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
