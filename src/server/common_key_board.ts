@@ -8,11 +8,6 @@ export function commonKeyBoard(event: TextDocumentChangeEvent, webView: Webview)
         return
     }
 
-    if (changes[0].text === 'zhangchenyang') {
-        webView.postMessage({ command: 'play-duvet', keyboard: 'zhangchenyang' })
-        return
-    }
-
     if (changes[0].rangeLength > 0) {
         // 如果是delete键
         if (changes[0].text.length === 0) {

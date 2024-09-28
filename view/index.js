@@ -14,8 +14,6 @@ let audioElements = null;
 let playingIndex = 0;
 // button按钮的点击事件方法
 let buttonClickEvent = null
-// duvet是否已经加载并且初始化
-let isDuvetInitSuccess = false
 
 
 
@@ -170,13 +168,6 @@ function buttonClick () {
         isInitSuccess = true
         createLoadingTip('测试成功！', true)
 
-        // 延迟处理，防止阻塞
-        setTimeout(() => {
-            if (!isDuvetInitSuccess) {
-                initDuvet()
-            }
-        }, 2000);
-
     }
     button.addEventListener("click", buttonClickEvent)
 }
@@ -235,20 +226,6 @@ function setPlayIndex (num) {
     playingIndex = num
 }
 
-
-/**
- * 初始化音频元素
- * 此函数用于获取页面中的音频元素（id 为 duvet），并进行一些初始化操作。
- */
-function initDuvet () {
-    const duvet = document.getElementById('duvet')
-    if (duvet) {
-        duvet.muted = true
-        duvet.play()
-        duvet.pause()
-        duvet.currentTime = 0
-    }
-}
 
 
 /**

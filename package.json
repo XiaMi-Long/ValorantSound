@@ -2,13 +2,13 @@
   "name": "valorant-sound",
   "displayName": "valorant-sound",
   "description": "根据valorant击杀音效来生成声音",
-  "icon": "./icon/1.png",
+  "icon": "./icon/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/XiaMi-Long/ValorantSound"
   },
   "publisher": "wwy",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -39,13 +39,11 @@
           "default": "盖亚",
           "enum": [
             "盖亚",
-            "未知",
-            "电吉他"
+            "混沌"
           ],
           "enumDescriptions": [
             "选择盖亚声音",
-            "选择电吉他声音",
-            "选择未知声音"
+            "选择混沌声音"
           ],
           "markdownDescription": "选择默认启动选中的声音主题"
         }

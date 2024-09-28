@@ -51,7 +51,6 @@ class ValorantSoundViewProvider implements vscode.WebviewViewProvider {
         this._view?.webview.onDidReceiveMessage(
             (message) => {
                 console.log(message)
-
                 switch (message.command) {
                     case 'init-success':
                         this._view?.webview.postMessage({ command: 'init-success', data: this.getDefaultAudioUrls() })
